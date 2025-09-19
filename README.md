@@ -1,5 +1,5 @@
 
-# Kubernetes 미니 프로젝트
+# Kubernetes 기반 애플리케이션 배포 및 트래픽 라우팅 아키텍처 구축
 <div align="center">
   <img width="500" alt="image" src="https://github.com/user-attachments/assets/7d6f8d77-2f4e-4b6d-bc35-58237828c979" />
 </div>
@@ -112,11 +112,33 @@ spec:
 | <img width="580" alt="image" src="https://github.com/user-attachments/assets/d9008d9c-d5b0-4e73-b1f8-fb86b4929df5" />| yaml 파일 적용 및 확인하기 |
 |<img width="420" alt="image" src="https://github.com/user-attachments/assets/bee0dfdf-29a1-4c91-96dc-7aafacefef2e" />| curl로 jar 구동 확인 |
 
+- 웹 접속 확인
+
+| 사진 | 설명 |
+| ---- | ----- |
+| <img width="600" alt="image" src="https://github.com/user-attachments/assets/6ba68de0-2e20-4d4f-94e4-9ee9807323b8" /> | 사전 작업 : 포트 포워딩 |
+| <img width="300" alt="image" src="https://github.com/user-attachments/assets/dab940b2-a18a-452d-a1bb-928b5b8fa2f1" /> | 웹 접속하기 |
+
 ---
+
+<br>
 
 ## 🌐 Ingress로 Hostname 기반 라우팅
 쿠버네티스에서 Ingress는 클러스터 외부에서 내부 서비스로 들어오는 HTTP/HTTPS 요청을 처리하는 규칙들의 집합입니다.
 단순히 IP 기반 라우팅을 제공하는 Service와 달리, 도메인 기반 라우팅을 설정할 수 있습니다.
+
+#### ➡️ Kubernetes Ingress Service Deployment Architecture Diagram
+<div align="center">
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/159bfbee-6ac4-4701-88da-bf3829d29dc0" />
+</div>
+
+> [그림] Kubernetes 요청 처리 흐름
+>
+> 클라이언트가 http://giljar.local로 요청을 보내면 Ingress가 이를 받아 nginx-service로 전달합니다.
+> Service는 ClusterIP(80 → 8900)을 통해 Deployment에 연결된 Pod들(giljar-a, giljar-b, giljar-c)로 트래픽을 분산합니다.
+> 같은 라벨을 가진 Pod들은 모두 containerPort: 8900에서 요청을 수신하며, ReplicaSet에 의해 다중화되어 부하 분산과 장애 복구가 가능합니다.
+
+<br>
 
 - 🔑 Ingress Controller
   - Ingress 리소스가 실제로 동작하려면 Ingress Controller가 필요합니다.
@@ -277,3 +299,15 @@ kubectl apply -f nginx-ingress.yaml
 | ---- | ---- | 
 | <img width="600" alt="image" src="https://github.com/user-attachments/assets/18df8426-8a3a-446a-8fbc-fb65827f1d60" /> | <img width="300" alt="image" src="https://github.com/user-attachments/assets/954e7446-02cd-4455-9074-15433d1c4a6c" /> |
 
+---
+
+
+### 📚 학습 성과 및 통찰
+**1. 서비스 유형의 차이를 명확히 이해했습니다.**
+ClusterIP, NodePort, Ingress를 직접 구성해보면서 단순히 개념으로만 알고 있던 차이가 실제로 어떻게 동작하는지 체감할 수 있었습니다.
+
+**2. 트래픽 라우팅 구조가 눈에 보였습니다.**
+Ingress를 적용해 nginx.local, spring.local 같은 호스트 기반 라우팅을 테스트하면서, 단순 포트 기반 접근보다 훨씬 직관적인 구조를 만들 수 있다는 점이 인상 깊었습니다.
+
+**3. YAML 기반 리소스 관리의 필요성을 느꼈습니다.**
+단순히 kubectl expose 같은 명령으로 리소스를 만들 때보다, yaml 파일로 명시적으로 관리하는 방식이 재현성과 버전 관리 측면에서 훨씬 안정적임을 확인했습니다.
