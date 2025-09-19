@@ -55,24 +55,62 @@ spec:
 ---
 
 ## 🟣 NodePort 구성하기
-: 클러스터 외부 접근을 가능하게 합니다. (사용 예시: 로드밸런서 없이 테스트 환경에서 외부 접근)
+: 클러스터 외부에서도 접근할 수 있도록 각 노드(Node)의 특정 포트에서 서비스하는 유형입니다.
 
-- 📄 `nginx-clusterip.yaml`
+- yaml 파일 설명
+  - 노드포트는 30000 ~ 32767의 범위로 고정
+  - 외부에서 접근 시 http://<NodeIP>:<NodePort> 형식으로 접근 가능
 ```shell
+type: NodePort
+ports:
+  - port: 80
+    targetPort: 8900
+    nodePort: 30080
+```
+
+- 📄 `nginx-nodeport.yaml`
+```shell
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: giljar-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: giljar
+  template:
+    metadata:
+      labels:
+        app: giljar
+    spec:
+      containers:
+      - name: giljar-container
+        image: byeonggill/giljar1:1.0  
+        ports:
+        - containerPort: 8900       
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-nodeport-service
+  name: giljar-service
 spec:
   selector:
-    app: my-app
+    app: giljar
   ports:
-    - protocol: TCP  
-      port: 80          # 서비스가 내부 Pod와 소통하는 포트
-      targetPort: 8080  # Pod 내부에서 컨테이너가 열어둔 포트
-      nodePort: 30007   # 외부 접근 포트 (30000~32767 범위)
+    - protocol: TCP
+      port: 80        
+      targetPort: 8900
+      nodePort: 30081  
   type: NodePort
 ```
+
+- 해당 이미지 구동 및 실행 확인
+
+| 사진 | 설명 |
+| ---- | ----- |
+| <img width="580" alt="image" src="https://github.com/user-attachments/assets/d9008d9c-d5b0-4e73-b1f8-fb86b4929df5" />| yaml 파일 적용 및 확인하기 |
+|<img width="420" alt="image" src="https://github.com/user-attachments/assets/bee0dfdf-29a1-4c91-96dc-7aafacefef2e" />| curl로 jar 구동 확인 |
 
 ---
 
