@@ -3,8 +3,7 @@
 <div align="center">
   <img width="500" alt="image" src="https://github.com/user-attachments/assets/7d6f8d77-2f4e-4b6d-bc35-58237828c979" />
 </div>
-쿠버네티스를 공부하면서 직접 실습해본 내용들을 정리했습니다.
-특히 Service 유형 (ClusterIP / NodePort) 과 Ingress를 활용한 외부 접근 방식을 다뤘습니다.
+Kubernetes 기반 애플리케이션 배포 환경을 직접 구성하며, 트래픽 라우팅 구조 전반을 설계·정리했습니다. 특히 Service 유형(ClusterIP / NodePort)**을 활용해 Pod 간 통신 및 외부 노출 방식을 비교·구축했고, Ingress 리소스와 NGINX Ingress Controller를 적용해 Hostname 기반 라우팅 구조를 구현했습니다.
 <br>
 
 ## Kubernetes Service 유형
@@ -136,7 +135,6 @@ spec:
 <details>
 <summary> <h4>🟡 Service 구성 - service.yaml</h4> </summary>
 
-- 📄 `service.yaml`
 ```shell
 apiVersion: v1
 kind: Service
@@ -166,6 +164,7 @@ spec:
 
 <details>
 <summary> <h4>🟢 Deployment 구성 - deployment.yaml </h4> </summary>
+
 ```shell
 apiVersion: apps/v1
 kind: Deployment
@@ -233,4 +232,10 @@ kubectl apply -f nginx-ingress.yaml
 | ---- | ---- |
 | <img width="500" alt="image" src="https://github.com/user-attachments/assets/bf221b49-d370-4926-b857-aa54336c5e94" />| service, deployment, pod 확인 |
 | <img width="380"  alt="image" src="https://github.com/user-attachments/assets/acd48438-5eae-435e-9a0f-445f90311bfb" />| /etc/hosts 파일에 DNS 등록 |
-| <img width="500" alt="image" src="https://github.com/user-attachments/assets/d0ec434f-156a-429a-8c17-b6466bc017f2" />| curl 명령어로 실행 확인 |
+
+- 실행 확인
+
+| curl 확인 | health 확인 |
+| ---- | ---- | 
+| <img width="600" alt="image" src="https://github.com/user-attachments/assets/18df8426-8a3a-446a-8fbc-fb65827f1d60" /> | <img width="300" alt="image" src="https://github.com/user-attachments/assets/954e7446-02cd-4455-9074-15433d1c4a6c" /> |
+
