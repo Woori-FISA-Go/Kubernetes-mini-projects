@@ -1,5 +1,5 @@
 
-# Kubernetes 기반 애플리케이션 배포 및 트래픽 라우팅 아키텍처 구축
+# Kubernetes 기반 <br>애플리케이션 배포 및 트래픽 라우팅 아키텍처 구축
 <div align="center">
   <img width="500" alt="image" src="https://github.com/user-attachments/assets/7d6f8d77-2f4e-4b6d-bc35-58237828c979" />
 </div>
@@ -50,7 +50,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 8900
   type: ClusterIP
 ```
 
@@ -58,6 +58,10 @@ spec:
 
 ## 🟣 NodePort 구성하기
 : 클러스터 외부에서도 접근할 수 있도록 각 노드(Node)의 특정 포트에서 서비스하는 유형입니다.
+
+- 아키텍처 구성도
+ <img width="8004" height="3408" alt="image (1)" src="https://github.com/user-attachments/assets/77934209-b741-483d-a4c5-44b4702542d9" />
+
 
 - yaml 파일 설명
   - 노드포트는 30000 ~ 32767의 범위로 고정
@@ -67,7 +71,7 @@ type: NodePort
 ports:
   - port: 80
     targetPort: 8900
-    nodePort: 30080
+    nodePort: 30081
 ```
 
 - 📄 `nginx-nodeport.yaml`
@@ -134,7 +138,7 @@ spec:
 
 #### ➡️ Kubernetes Ingress Service Deployment Architecture Diagram
 <div align="center">
-<img width="800" height="900" alt="Image" src="https://github.com/user-attachments/assets/3c267e68-cb23-4acf-b933-b5977f289d7a" />
+<img width="700" alt="찐찐최종 drawio" src="https://github.com/user-attachments/assets/48cc5d5a-0d88-45c5-859e-534deaae5e1d" />
 </div>
 
 > [그림] Kubernetes 요청 처리 흐름
