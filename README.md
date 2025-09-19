@@ -3,11 +3,13 @@
 <div align="center">
   <img width="500" alt="image" src="https://github.com/user-attachments/assets/7d6f8d77-2f4e-4b6d-bc35-58237828c979" />
 </div>
-Kubernetes 기반 애플리케이션 배포 환경을 직접 구성하며, 트래픽 라우팅 구조 전반을 설계·정리했습니다. 특히 Service 유형(ClusterIP / NodePort)**을 활용해 Pod 간 통신 및 외부 노출 방식을 비교·구축했고, Ingress 리소스와 NGINX Ingress Controller를 적용해 Hostname 기반 라우팅 구조를 구현했습니다.
+Kubernetes 기반 애플리케이션 배포 환경을 직접 구성하며, 트래픽 라우팅 구조 전반을 설계·정리했습니다. 
+<br>
+특히 Service 유형(ClusterIP / NodePort)을 활용해 Pod 간 통신 및 외부 노출 방식을 비교·구축했고, Ingress 리소스와 NGINX Ingress Controller를 적용해 Hostname 기반 라우팅 구조를 구현했습니다.
 <br>
 
 ## Kubernetes Service 유형
-쿠버네티스에서 Pod은 동적으로 생성·삭제되므로 직접 IP로 접근하기 어렵습니다.
+쿠버네티스에서 Pod는 동적으로 생성·삭제되므로 직접 IP로 접근하기 어렵습니다.
 이 문제를 해결하기 위해 Service를 사용하며, 유형별 특징은 아래와 같습니다.
 <br>
 
@@ -22,7 +24,7 @@ Kubernetes 기반 애플리케이션 배포 환경을 직접 구성하며, 트�
 
 <br>
 
-### 📝 `yaml` 파일로 명시적으로 리소스 관리하기
+### 📝 `yaml` 파일로 리소스 관리하기
 - 보통 `kubectl expose` 명령어를 쓰면 간단하게 Service를 만들 수 있습니다.
   - 하지만 이렇게 하면 kubectl이 자동으로 Service 리소스를 생성합니다.
 - 반면에 `yaml` 파일(nginx-clusterip.yaml)을 작성해서 `kubectl apply -f`로 적용하는 방법은,<br>
@@ -124,18 +126,21 @@ spec:
 <br>
 
 ## 🌐 Ingress로 Hostname 기반 라우팅
-쿠버네티스에서 Ingress는 클러스터 외부에서 내부 서비스로 들어오는 HTTP/HTTPS 요청을 처리하는 규칙들의 집합입니다.
-단순히 IP 기반 라우팅을 제공하는 Service와 달리, 도메인 기반 라우팅을 설정할 수 있습니다.
+쿠버네티스에서 Ingress는 클러스터 외부에서 내부 서비스로 들어오는 HTTP/HTTPS 요청을 처리하는 규칙들의 집합입니다. 단순히 IP 기반 라우팅을 제공하는 Service와 달리, 도메인 기반 라우팅을 설정할 수 있습니다.
+> Ingress를 통해 외부 트래픽을 라우팅할 때, Service는 굳이 외부 IP를 가질 필요가 없습니다.
+> 모든 트래픽은 Ingress Controller가 받아서 내부적으로 처리하기 때문입니다.
+> 따라서 외부 노출을 최소화하고 클러스터 내부 통신에 최적화된 ClusterIP 타입을 선택했습니다.
+> 만약 NodePort를 사용했다면 불필요한 포트가 외부에 노출되어 보안적으로 취약해질 수 있었을 겁니다.
 
 #### ➡️ Kubernetes Ingress Service Deployment Architecture Diagram
 <div align="center">
-<img width="800" alt="image" src="https://github.com/user-attachments/assets/159bfbee-6ac4-4701-88da-bf3829d29dc0" />
+<img width="800" height="900" alt="Image" src="https://github.com/user-attachments/assets/3c267e68-cb23-4acf-b933-b5977f289d7a" />
 </div>
 
 > [그림] Kubernetes 요청 처리 흐름
 >
-> 클라이언트가 http://giljar.local로 요청을 보내면 Ingress가 이를 받아 nginx-service로 전달합니다.
-> Service는 ClusterIP(80 → 8900)을 통해 Deployment에 연결된 Pod들(giljar-a, giljar-b, giljar-c)로 트래픽을 분산합니다.
+> 클라이언트가 http://spring.local로 요청을 보내면 Ingress가 이를 받아 nginx-service로 전달합니다.
+> Service는 ClusterIP(80 → 8900)을 통해 Deployment에 연결된 Pod들(spring1, spring2)로 트래픽을 분산합니다.
 > 같은 라벨을 가진 Pod들은 모두 containerPort: 8900에서 요청을 수신하며, ReplicaSet에 의해 다중화되어 부하 분산과 장애 복구가 가능합니다.
 
 <br>
@@ -310,4 +315,4 @@ ClusterIP, NodePort, Ingress를 직접 구성해보면서 단순히 개념으로
 Ingress를 적용해 nginx.local, spring.local 같은 호스트 기반 라우팅을 테스트하면서, 단순 포트 기반 접근보다 훨씬 직관적인 구조를 만들 수 있다는 점이 인상 깊었습니다.
 
 **3. YAML 기반 리소스 관리의 필요성을 느꼈습니다.**
-단순히 kubectl expose 같은 명령으로 리소스를 만들 때보다, yaml 파일로 명시적으로 관리하는 방식이 재현성과 버전 관리 측면에서 훨씬 안정적임을 확인했습니다.
+단순히 kubectl expose 같은 명령으로 리소스를 만들 때보다, kubectl apply -f . 명령어로 2개의 애플리케이션(총 4개 Pod)을 5초 안에 배포할 수 있는 선언형 인프라 환경을 구축했습니다. yaml 파일로 명시적으로 관리하는 방식이 재현성과 버전 관리 측면에서 훨씬 안정적임을 확인했습니다.
